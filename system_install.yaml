@@ -1,0 +1,29 @@
+- name: Install system needed for analytics clusters
+  hosts: localhost
+  vars:
+    eck_version: 1.4.0 # Elastic Cloud for Kubernetes version
+  tasks:
+  - name: Ensure purity_fb SDK package installed
+    pip:
+      name: purity_fb
+
+  - name: Install or upgrade ansible galaxy module
+    shell: ansible-galaxy collection install -f purestorage.flashblade
+
+  # Note: should update below to use the new helm chart to install this.
+  - name: Install or upgrade ECK
+    shell: "kubectl apply -f https://download.elastic.co/downloads/eck/{{ eck_version }}/all-in-one.yaml"
+
+  - name: Initiate ECK trial license
+    shell: |
+      cat <<EOF | kubectl apply -f -
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: eck-trial-license
+        namespace: elastic-system
+        labels:
+          license.k8s.elastic.co/type: enterprise_trial
+        annotations:
+          elastic.co/eula: accepted
+
