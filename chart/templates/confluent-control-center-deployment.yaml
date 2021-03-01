@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-confluent-control-center
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-confluent-control-center
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-confluent-control-center
+    spec:
+      containers:
+      - name: ccc
+        image: confluentinc/cp-enterprise-control-center:{{ .Values.kafka.cpVersion }}
+        env:
+        - name: CONTROL_CENTER_ZOOKEEPER_CONNECT
+          value: "{{ .Release.Name }}-kafka-zk-cs:2181"
+        - name: CONTROL_CENTER_BOOTSTRAP_SERVERS
+          value: "{{ .Release.Name }}-kafka:9092"
+        - name: CONTROL_CENTER_KSQL_ENABLE
+          value: "false"
+        - name: CONTROL_CENTER_REPLICATION_FACTOR
+          value: "2"
+        - name: CONTROL_CENTER_INTERNAL_TOPICS_PARTITIONS
+          value: "1"
+        - name: CONTROL_CENTER_MONITORING_INTERCEPTOR_TOPIC_PARTITIONS
+          value: "1"
+        - name: CONFLUENT_METRICS_TOPIC_REPLICATION
+          value: "2"
+        ports:
+        - containerPort: 9021
+        resources:
+          requests:
+            memory: "8G"
+            cpu: 2
+        volumeMounts:
+        - name: ccc-data
+          mountPath: /var/lib/confluent-control-center
+        imagePullPolicy: Always
+      volumes:
+      - name: ccc-data
+        persistentVolumeClaim:
+          claimName: {{ .Release.Name }}-ccc-data-claim

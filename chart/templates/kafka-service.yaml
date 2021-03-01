@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-kafka
+  labels:
+    app: {{ .Release.Name }}-kafka
+spec:
+  clusterIP: None
+  ports:
+  - name: kafka-port
+    port: 9092
+  - name: mtx-port
+    port: 7071
+  selector:
+    app: {{ .Release.Name }}-kafka

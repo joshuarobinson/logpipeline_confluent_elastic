@@ -1,0 +1,18 @@
+apiVersion: kibana.k8s.elastic.co/v1
+kind: Kibana
+metadata:
+  name: {{ .Release.Name }}
+spec:
+  version: "{{ .Values.elasticsearch.version }}"
+  count: 1
+  elasticsearchRef:
+    name: {{ .Release.Name }}
+  http:
+    service:
+      spec:
+        type: NodePort
+        ports:
+        - name: https
+          nodePort: 30561
+          port: 5601
+          targetPort: 5601

@@ -1,0 +1,27 @@
+kind: ConfigMap 
+apiVersion: v1 
+metadata:
+  name: {{ .Release.Name }}-kafka-beats-config
+data:
+  filebeat.yml: |
+    filebeat.inputs:
+    - type: kafka
+      hosts:
+        - {{ .Release.Name }}-kafka:9092
+      topics: ["flogs"]
+      group_id: "kafka-beats"
+
+    setup.template.settings:
+      index.number_of_shards: 12
+      index.number_of_replicas: 1
+      index.refresh_interval: 30s
+
+    output.elasticsearch:
+      hosts: "${ELASTICSEARCH_HOST}:9200"
+      protocol: 'https'
+      username: elastic
+      password: "${ELASTICSEARCH_PASSWORD}"
+      ssl.enabled: true
+      ssl.verification_mode: "none"
+      worker: 4
+      bulk_max_size: 8192

@@ -1,0 +1,72 @@
+apiVersion: elasticsearch.k8s.elastic.co/v1
+kind: Elasticsearch
+metadata:
+  name: {{ .Release.Name }}
+spec:
+  version: "{{ .Values.elasticsearch.version }}"
+  nodeSets:
+  - name: all-nodes
+    count: {{ .Values.elasticsearch.nodecount }}
+    podTemplate:
+      metadata:
+        labels:
+          stack-monitoring.elastic.co/type: es
+        annotations:
+          co.elastic.logs/enabled: "true"
+      spec:
+        containers:
+        - name: elasticsearch
+          volumeMounts:
+          - name: es-snap-repo-vol
+            mountPath: /es-snaps
+          resources:
+            limits:
+              memory: 24Gi
+              cpu: 12
+        initContainers:
+        - name: install-plugins
+          command:
+          - sh
+          - -c
+          - |
+            bin/elasticsearch-plugin remove repository-s3
+            bin/elasticsearch-plugin install --batch repository-s3
+        - name: add-access-keys
+          env:
+          - name: AWS_ACCESS_KEY_ID
+            valueFrom:
+              secretKeyRef:
+                name: my-s3-keys
+                key: access-key
+          - name: AWS_SECRET_ACCESS_KEY
+            valueFrom:
+              secretKeyRef:
+                name: my-s3-keys
+                key: secret-key
+          command:
+            - sh
+            - -c
+            - |
+              env | grep AWS_ | awk -F= '{print $2}'
+              env | grep AWS_ACCESS_KEY_ID | awk -F= '{print $2}' | bin/elasticsearch-keystore add --stdin --force s3.client.default.access_key
+              env | grep AWS_SECRET_ACCESS_KEY | awk -F= '{print $2}' | bin/elasticsearch-keystore add --stdin --force s3.client.default.secret_key
+        volumes:
+        - name: es-snap-repo-vol
+          persistentVolumeClaim:
+            claimName: {{ .Release.Name }}-es-snap-repo-claim
+    config:
+      node.store.allow_mmap: false
+      node.roles: ["master", "data_hot", "ingest", "ml", "data_warm", "data_cold", "data_content"]
+      thread_pool.snapshot.max: 8
+      path.repo: ["/es-snaps"]
+      indices.recovery.max_bytes_per_sec: "1gb"
+    volumeClaimTemplates:
+    - metadata:
+        name: elasticsearch-data
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: 8Ti
+        storageClassName: {{ .Values.elasticsearch.storageclass }}

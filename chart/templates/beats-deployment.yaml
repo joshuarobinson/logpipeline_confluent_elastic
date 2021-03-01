@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-kafka-beats
+spec:
+  replicas: {{ .Values.beats.nodecount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-kafka-beats
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-kafka-beats
+    spec:
+      containers:
+      - name: beats
+        image: docker.elastic.co/beats/filebeat:{{ .Values.elasticsearch.version }}
+        env:
+        - name: ELASTICSEARCH_HOST
+          value: {{ .Release.Name }}-es-http
+        - name: ELASTICSEARCH_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-es-elastic-user
+              key: elastic
+        volumeMounts:
+        - name: beats-config-vol
+          mountPath: /usr/share/filebeat/filebeat.yml
+          subPath: filebeat.yml
+      volumes:
+      - name: beats-config-vol
+        configMap:
+          name: {{ .Release.Name }}-kafka-beats-config

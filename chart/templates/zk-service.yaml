@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-kafka-zk-cs
+  labels:
+    app: {{ .Release.Name }}-kafka-zk
+spec:
+  ports:
+  - port: 2181
+    name: client
+  selector:
+    app: {{ .Release.Name }}-kafka-zk

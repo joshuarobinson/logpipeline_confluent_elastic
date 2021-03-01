@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ .Release.Name }}-kafka
+spec:
+  serviceName: {{ .Release.Name }}-kafka
+  replicas: {{ .Values.kafka.nodecount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-kafka
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-kafka
+    spec:
+      securityContext:
+        fsGroup: 1000
+      containers:
+      - name: cp-server
+        image: confluentinc/cp-server:{{ .Values.kafka.cpVersion }}
+        envFrom:
+        - configMapRef:
+            name: {{ .Release.Name }}-kafka-env-config
+        env:
+        - name: AWS_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              name: my-s3-keys
+              key: access-key
+        - name: AWS_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: my-s3-keys
+              key: secret-key
+        ports:
+        - containerPort: 9092
+          name: kafka-port
+        - containerPort: 7071
+          name: mtx-port
+        imagePullPolicy: Always
+        volumeMounts:
+        - name: broker-data
+          mountPath: /var/lib/kafka/data
+        resources:
+          requests:
+            memory: 32Gi
+            cpu: 8
+          limits:
+            memory: 64Gi
+            cpu: 12
+  volumeClaimTemplates:
+  - metadata:
+      name: broker-data
+    spec:
+      storageClassName: {{ .Values.kafka.storageclass }}
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 1Ti

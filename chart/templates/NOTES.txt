@@ -1,0 +1,2 @@
+1. Get the Elastic user password by running these commands:
+  echo $(kubectl get secret {{ .Release.Name }}-es-elastic-user -o go-template='{{ "{{" }}.data.elastic | base64decode{{ "}}" }}')

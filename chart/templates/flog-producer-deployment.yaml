@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-flog-producer
+  labels:
+    app: {{ .Release.Name }}-flog-producer
+spec:
+  replicas: {{ .Values.flog.nodecount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-flog-producer
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-flog-producer
+    spec:
+      containers:
+      - name: producer
+        image: "joshuarobinson/flogkafka"
+        command: ["bash"]
+        args: ["-c", "sleep 60 && /opt/flog -l -f json | /usr/local/bin/kafkacat -b {{ .Release.Name }}-kafka:9092 -t flogs -P -z snappy -X acks=1"]
+        imagePullPolicy: Always
+        resources:
+          requests:
+            cpu: "1000m"
+      restartPolicy: Always

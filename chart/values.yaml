@@ -1,0 +1,29 @@
+# Default values for pureconflastic.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+flashblade:
+  datavip: "10.1.1.100"
+  mgmtvip: "10.1.1.2"
+  token: "REPLACEME"
+
+zookeeper:
+  storageclass: "pure-block"
+
+kafka:
+  bucket: "ke-tiered-storage"
+  cpVersion: 6.1.0
+  storageclass: "pure-file"
+  nodecount: 4
+
+elasticsearch:
+  nodecount: 6
+  version: 7.11.1
+  bucket: "ke-elastic-snaprep"
+  storageclass: "pure-file"
+
+beats:
+  nodecount: 8
+
+flog:
+  nodecount: 2

@@ -1,0 +1,151 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Release.Name }}-post-es-snap-setup
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-delete-policy": before-hook-creation
+spec:
+  template:
+    spec:
+      initContainers:
+      - name: wait
+        image: centos:8
+        command: ["sh"]
+        args: ["-c", "sleep 60"]
+        imagePullPolicy: Always
+      - name: create-s3-repo
+        image: centos:8
+        command: 
+          - "sh"
+          - "-c"
+          - >
+            curl -sS -u elastic:$(ELASTICSEARCH_PASSWORD) -k -X PUT https://{{ .Release.Name }}-es-http:9200/_snapshot/fb_s3_repository?pretty -H 'Content-Type: application/json' -d
+            '{
+              "type": "s3",
+              "settings": {
+                "bucket": "{{ .Values.elasticsearch.bucket }}",
+                "endpoint": "{{ .Values.flashblade.datavip }}",
+                "protocol": "http",
+                "path_style_access": "true",
+                "max_restore_bytes_per_sec": "1gb",
+                "max_snapshot_bytes_per_sec": "500mb"
+              }
+            }'
+        env:
+          - name: ELASTICSEARCH_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Release.Name }}-es-elastic-user
+                key: elastic
+        imagePullPolicy: Always
+      - name: create-nfs-repo
+        image: centos:8
+        env:
+          - name: ELASTICSEARCH_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Release.Name }}-es-elastic-user
+                key: elastic
+        command: 
+          - "sh"
+          - "-c"
+          - >
+            curl -sS -u elastic:$(ELASTICSEARCH_PASSWORD) -k -X PUT https://{{ .Release.Name }}-es-http:9200/_snapshot/fb_nfs_repository?pretty -H 'Content-Type: application/json' -d
+            '{
+              "type": "fs",
+              "settings": {
+                "location": "/es-snaps",
+                "max_restore_bytes_per_sec": "1gb",
+                "max_snapshot_bytes_per_sec": "500mb"
+              }
+            }'
+      - name: create-nfs-sched
+        image: centos:8
+        env:
+          - name: ELASTICSEARCH_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Release.Name }}-es-elastic-user
+                key: elastic
+        command: 
+          - "sh"
+          - "-c"
+          - >
+            curl -sS -u elastic:$(ELASTICSEARCH_PASSWORD) -k -X PUT https://{{ .Release.Name }}-es-http:9200/_slm/policy/hourly-snapshots-nfs?pretty -H 'Content-Type: application/json' -d
+            '{
+              "schedule": "0 00 * * * ?",
+              "name": "<hourly-snap-{now/d}>",
+              "repository": "fb_nfs_repository",
+              "config": {
+                "indices": ["filebeat-*"],
+                "ignore_unavailable": true,
+                "include_global_state": false
+              },
+              "retention": {
+                "expire_after": "10d",
+                "min_count": 24,
+                "max_count": 48
+              }
+            }'
+      - name: create-ilm
+        image: centos:8
+        env:
+          - name: ELASTICSEARCH_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Release.Name }}-es-elastic-user
+                key: elastic
+        command: 
+          - "sh"
+          - "-c"
+          - >
+            curl -sS -u elastic:$(ELASTICSEARCH_PASSWORD) -k -X PUT https://{{ .Release.Name }}-es-http:9200/_ilm/policy/filebeat?pretty -H 'Content-Type: application/json' -d
+            '{ 
+              "policy": {
+                "phases" : { 
+                  "hot" : { 
+                    "actions" : { 
+                      "rollover" : { 
+                        "max_age" : "6h", 
+                        "max_size" : "500gb" 
+                        }, 
+                      "forcemerge" : { 
+                        "max_num_segments" : 1 
+                      } 
+                    } 
+                  }, 
+                  "cold" : { 
+                    "actions" : {
+                      "searchable_snapshot": {
+                        "snapshot_repository" : "fb_s3_repository"
+                      }
+                    } 
+                  }, 
+                  "delete" : { 
+                    "min_age" : "10d", 
+                    "actions" : { 
+                      "delete" : { } 
+                    } 
+                  } 
+                }
+              }
+            }'
+      containers:
+      - name: terminal
+        image: centos:8
+        command:
+          - "sh"
+          - "-c"
+          - >
+            curl -sS -u elastic:$(ELASTICSEARCH_PASSWORD) -k https://{{ .Release.Name }}-es-http:9200/_nodes?pretty
+            curl -sS -u elastic:$(ELASTICSEARCH_PASSWORD) -k https://{{ .Release.Name }}-es-http:9200/_snapshot?pretty
+        env:
+          - name: ELASTICSEARCH_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Release.Name }}-es-elastic-user
+                key: elastic
+        imagePullPolicy: Always
+      restartPolicy: Never
+  backoffLimit: 2

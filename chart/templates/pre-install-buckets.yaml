@@ -1,0 +1,31 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Release.Name }}-pre-bucket-create
+  annotations:
+    "helm.sh/hook": pre-install
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  template:
+    spec:
+      containers:
+      - name: plumb-{{ .Values.kafka.bucket }}
+        image: joshuarobinson/s3manage
+        args: ["create", "bucket", "{{ .Values.kafka.bucket }}"] 
+        env:
+          - name: PUREFB_URL
+            value: {{ .Values.flashblade.mgmtvip }}
+          - name: PUREFB_API
+            value: {{ .Values.flashblade.token }}
+        imagePullPolicy: Always
+      - name: plumb-{{ .Values.elasticsearch.bucket }}
+        image: joshuarobinson/s3manage
+        args: ["create", "bucket", "{{ .Values.elasticsearch.bucket }}"] 
+        env:
+          - name: PUREFB_URL
+            value: {{ .Values.flashblade.mgmtvip }}
+          - name: PUREFB_API
+            value: {{ .Values.flashblade.token }}
+        imagePullPolicy: Always
+      restartPolicy: Never
+  backoffLimit: 2
