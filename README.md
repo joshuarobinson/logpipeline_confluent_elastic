@@ -14,8 +14,8 @@ Further Reading:
 
 # Pre-requisites
 
-* Kubernetes cluster installed and kubectl available locally.
-* PSO installed and configured correctly.
+* Kubernetes cluster installed
+* [PSO installed](https://github.com/purestorage/helm-charts/tree/master/pure-csi) and configured correctly.
 * (Optional) FlashArray/PSO or PortWorx configured.
 * [Elastic Cloud for Kubernetes](https://www.elastic.co/guide/en/cloud-on-k8s/current/k8s-installing-eck.html) installed.
 * Elastic license enabled or [trial license installed](https://www.elastic.co/guide/en/cloud-on-k8s/current/k8s-licensing.html#k8s-start-trial).
@@ -25,6 +25,7 @@ Further Reading:
 Requires the VIPs and login token specified in the values.yaml.
 
 To obtain the TOKEN, login via CLI and either create or list the token:
+
 ```pureadmin [create|list] --api-token --expose```
 
 Specify StorageClasses in values.yaml, depending on your PSO (FlashArray or FlashBlade) or PortWorx availability.
