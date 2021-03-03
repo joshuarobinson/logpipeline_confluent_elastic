@@ -1,0 +1,14 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: s3manage
+  annotations:
+    "helm.sh/hook": pre-install
+    "helm.sh/hook-weight": "5"
+subjects:
+- kind: ServiceAccount
+  name: s3manage
+roleRef:
+  kind: Role
+  name: s3manage-secret
+  apiGroup: rbac.authorization.k8s.io

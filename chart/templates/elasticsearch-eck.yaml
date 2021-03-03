@@ -36,12 +36,12 @@ spec:
           - name: AWS_ACCESS_KEY_ID
             valueFrom:
               secretKeyRef:
-                name: my-s3-keys
+                name: {{ .Release.Name }}-s3-keys
                 key: access-key
           - name: AWS_SECRET_ACCESS_KEY
             valueFrom:
               secretKeyRef:
-                name: my-s3-keys
+                name: {{ .Release.Name }}-s3-keys
                 key: secret-key
           command:
             - sh
