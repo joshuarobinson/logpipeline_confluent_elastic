@@ -24,7 +24,7 @@ spec:
             '{
               "type": "s3",
               "settings": {
-                "bucket": "{{ .Values.elasticsearch.bucket }}",
+                "bucket": "{{ .Release.Name }}-es-snaprepo",
                 "endpoint": "{{ .Values.flashblade.datavip }}",
                 "protocol": "http",
                 "path_style_access": "true",

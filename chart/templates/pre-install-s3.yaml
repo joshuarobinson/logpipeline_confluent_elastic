@@ -38,18 +38,18 @@ spec:
           - name: PUREFB_API
             value: {{ .Values.flashblade.token }}
         imagePullPolicy: Always
-      - name: plumb-{{ .Values.kafka.bucket }}
+      - name: plumb-kafka-bucket
         image: joshuarobinson/s3manage
-        args: ["create", "bucket", "--account", "{{ .Release.Name }}", "{{ .Values.kafka.bucket }}"] 
+        args: ["create", "bucket", "--account", "{{ .Release.Name }}", "{{ .Release.Name }}-kafka-tiered-storage"] 
         env:
           - name: PUREFB_URL
             value: {{ .Values.flashblade.mgmtvip }}
           - name: PUREFB_API
             value: {{ .Values.flashblade.token }}
         imagePullPolicy: Always
-      - name: plumb-{{ .Values.elasticsearch.bucket }}
+      - name: plumb-elastic-bucket
         image: joshuarobinson/s3manage
-        args: ["create", "bucket", "--account", "{{ .Release.Name }}", "{{ .Values.elasticsearch.bucket }}"] 
+        args: ["create", "bucket", "--account", "{{ .Release.Name }}", "{{ .Release.Name }}-es-snaprepo"] 
         env:
           - name: PUREFB_URL
             value: {{ .Values.flashblade.mgmtvip }}
