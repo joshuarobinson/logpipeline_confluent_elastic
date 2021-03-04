@@ -26,10 +26,10 @@ Further Reading:
 
 # Inputs 
 
-Requires the VIPs and login token specified in the values.yaml.
+The *required* chart inputs in values.yaml are the FlashBlade IPs (management and data) and login token.
 
 To obtain the TOKEN, login via CLI and either create or list the token:
 
 ```pureadmin [create|list] --api-token --expose```
 
-Specify StorageClasses in values.yaml, depending on your PSO (FlashArray or FlashBlade) or PortWorx availability.
+By default, all PersistentVolumes used the FlashBlade, but this can be optionally changed to "pure-block" for FlashArray volumes or a PortWorx storageclass.
