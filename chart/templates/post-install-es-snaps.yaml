@@ -51,11 +51,14 @@ spec:
           - "sh"
           - "-c"
           - >
-            curl -sS -u elastic:$(ELASTICSEARCH_PASSWORD) -k -X PUT https://{{ .Release.Name }}-es-http:9200/_snapshot/fb_nfs_repository?pretty -H 'Content-Type: application/json' -d
+            curl -sS -u elastic:$(ELASTICSEARCH_PASSWORD) -k -X PUT https://{{ .Release.Name }}-es-http:9200/_snapshot/fb_s3_searchable?pretty -H 'Content-Type: application/json' -d
             '{
-              "type": "fs",
+              "type": "s3",
               "settings": {
-                "location": "/es-snaps",
+                "bucket": "{{ .Release.Name }}-es-ssnaps",
+                "endpoint": "{{ .Values.flashblade.datavip }}",
+                "protocol": "http",
+                "path_style_access": "true",
                 "max_restore_bytes_per_sec": "1gb",
                 "max_snapshot_bytes_per_sec": "500mb"
               }
@@ -72,11 +75,11 @@ spec:
           - "sh"
           - "-c"
           - >
-            curl -sS -u elastic:$(ELASTICSEARCH_PASSWORD) -k -X PUT https://{{ .Release.Name }}-es-http:9200/_slm/policy/hourly-snapshots-nfs?pretty -H 'Content-Type: application/json' -d
+            curl -sS -u elastic:$(ELASTICSEARCH_PASSWORD) -k -X PUT https://{{ .Release.Name }}-es-http:9200/_slm/policy/hourly-snapshots-s3?pretty -H 'Content-Type: application/json' -d
             '{
               "schedule": "0 00 * * * ?",
               "name": "<hourly-snap-{now/d}>",
-              "repository": "fb_nfs_repository",
+              "repository": "fb_s3_repository",
               "config": {
                 "indices": ["filebeat-*"],
                 "ignore_unavailable": true,
@@ -118,7 +121,7 @@ spec:
                   "cold" : { 
                     "actions" : {
                       "searchable_snapshot": {
-                        "snapshot_repository" : "fb_s3_repository"
+                        "snapshot_repository" : "fb_s3_searchable"
                       }
                     } 
                   }, 
