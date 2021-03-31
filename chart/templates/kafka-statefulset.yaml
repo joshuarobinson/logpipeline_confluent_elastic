@@ -5,6 +5,7 @@ metadata:
 spec:
   serviceName: {{ .Release.Name }}-kafka
   replicas: {{ .Values.kafka.nodecount }}
+  podManagementPolicy: Parallel
   selector:
     matchLabels:
       app: {{ .Release.Name }}-kafka
