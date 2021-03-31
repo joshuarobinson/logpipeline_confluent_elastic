@@ -18,7 +18,7 @@ spec:
       - name: producer
         image: "joshuarobinson/flogkafka"
         command: ["bash"]
-        args: ["-c", "sleep 60 && /opt/flog -l -f json | /usr/local/bin/kafkacat -b {{ .Release.Name }}-kafka:9092 -t flogs -P -z snappy -X acks=1"]
+        args: ["-c", "sleep 120 && /opt/flog -l -f json | /usr/local/bin/kafkacat -b {{ .Release.Name }}-kafka:9092 -t flogs -P -z snappy -X acks=1"]
         imagePullPolicy: Always
         resources:
           requests:

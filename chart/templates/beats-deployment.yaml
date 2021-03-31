@@ -12,6 +12,12 @@ spec:
       labels:
         app: {{ .Release.Name }}-kafka-beats
     spec:
+      initContainers:
+      - name: wait
+        image: centos:8
+        command: ["sh"]
+        args: ["-c", "sleep 120"]
+        imagePullPolicy: Always
       containers:
       - name: beats
         image: docker.elastic.co/beats/filebeat:{{ .Values.elasticsearch.version }}
