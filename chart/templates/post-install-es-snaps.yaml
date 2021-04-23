@@ -29,7 +29,7 @@ spec:
                 "protocol": "http",
                 "path_style_access": "true",
                 "max_restore_bytes_per_sec": "1gb",
-                "max_snapshot_bytes_per_sec": "500mb"
+                "max_snapshot_bytes_per_sec": "200mb"
               }
             }'
         env:
@@ -39,7 +39,7 @@ spec:
                 name: {{ .Release.Name }}-es-elastic-user
                 key: elastic
         imagePullPolicy: Always
-      - name: create-nfs-repo
+      - name: create-ssnap-repo
         image: centos:8
         env:
           - name: ELASTICSEARCH_PASSWORD
@@ -60,10 +60,10 @@ spec:
                 "protocol": "http",
                 "path_style_access": "true",
                 "max_restore_bytes_per_sec": "1gb",
-                "max_snapshot_bytes_per_sec": "500mb"
+                "max_snapshot_bytes_per_sec": "200mb"
               }
             }'
-      - name: create-nfs-sched
+      - name: create-dp-sched
         image: centos:8
         env:
           - name: ELASTICSEARCH_PASSWORD
@@ -77,7 +77,7 @@ spec:
           - >
             curl -sS -u elastic:$(ELASTICSEARCH_PASSWORD) -k -X PUT https://{{ .Release.Name }}-es-http:9200/_slm/policy/hourly-snapshots-s3?pretty -H 'Content-Type: application/json' -d
             '{
-              "schedule": "0 00 * * * ?",
+              "schedule": "0 00 */4 * * ?",
               "name": "<hourly-snap-{now/d}>",
               "repository": "fb_s3_repository",
               "config": {
@@ -86,7 +86,7 @@ spec:
                 "include_global_state": false
               },
               "retention": {
-                "expire_after": "10d",
+                "expire_after": "90d",
                 "min_count": 24,
                 "max_count": 48
               }
@@ -110,7 +110,7 @@ spec:
                   "hot" : { 
                     "actions" : { 
                       "rollover" : { 
-                        "max_age" : "6h", 
+                        "max_age" : "1h",
                         "max_size" : "500gb" 
                         }, 
                       "forcemerge" : { 
@@ -118,7 +118,8 @@ spec:
                       } 
                     } 
                   }, 
-                  "cold" : { 
+                  "frozen" : {
+                    "min_age" : "1h",
                     "actions" : {
                       "searchable_snapshot": {
                         "snapshot_repository" : "fb_s3_searchable"

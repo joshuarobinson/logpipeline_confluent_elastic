@@ -5,7 +5,7 @@ metadata:
 spec:
   version: "{{ .Values.elasticsearch.version }}"
   nodeSets:
-  - name: all-nodes
+  - name: "all-nodes-{{ .Values.elasticsearch.storageclass }}"
     count: {{ .Values.elasticsearch.nodecount }}
     podTemplate:
       metadata:
@@ -18,8 +18,8 @@ spec:
         - name: elasticsearch
           resources:
             limits:
-              memory: 24Gi
-              cpu: 12
+              memory: 32Gi
+              cpu: 16
         initContainers:
         - name: install-plugins
           command:
@@ -48,9 +48,10 @@ spec:
               env | grep AWS_SECRET_ACCESS_KEY | awk -F= '{print $2}' | bin/elasticsearch-keystore add --stdin --force s3.client.default.secret_key
     config:
       node.store.allow_mmap: false
-      node.roles: ["master", "data_hot", "ingest", "ml", "data_warm", "data_cold", "data_content"]
+      node.roles: ["master", "data_hot", "ingest", "ml", "data_warm", "data_cold", "data_frozen", "data_content"]
       thread_pool.snapshot.max: 8
-      indices.recovery.max_bytes_per_sec: "1gb"
+      indices.recovery.max_bytes_per_sec: "1mb"
+      xpack.searchable.snapshot.shared_cache.size: "1gb"
     volumeClaimTemplates:
     - metadata:
         name: elasticsearch-data
