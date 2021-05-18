@@ -11,6 +11,13 @@ data:
       topics: ["flogs"]
       group_id: "kafka-beats"
 
+    processors:
+    - decode_json_fields:
+        fields: ["message"]
+        overwrite_keys: true
+        target: "msg"
+        add_error_key: true
+
     setup.template.settings:
       index.number_of_shards: 12
       index.number_of_replicas: 1
