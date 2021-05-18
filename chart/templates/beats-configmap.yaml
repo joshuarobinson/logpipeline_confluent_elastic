@@ -17,6 +17,12 @@ data:
         overwrite_keys: true
         target: "msg"
         add_error_key: true
+    - timestamp:
+        field: "msg.datetime"
+        layouts:
+          - '02/Jan/2006:15:04:05 -0700'
+        test:
+          - '18/May/2021:09:31:00 +0000'
 
     setup.template.settings:
       index.number_of_shards: 12
