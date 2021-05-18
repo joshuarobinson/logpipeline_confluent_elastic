@@ -77,7 +77,7 @@ spec:
           - >
             curl -sS -u elastic:$(ELASTICSEARCH_PASSWORD) -k -X PUT https://{{ .Release.Name }}-es-http:9200/_slm/policy/hourly-snapshots-s3?pretty -H 'Content-Type: application/json' -d
             '{
-              "schedule": "0 00 */4 * * ?",
+              "schedule": "0 00 */8 * * ?",
               "name": "<hourly-snap-{now/d}>",
               "repository": "fb_s3_repository",
               "config": {
@@ -86,9 +86,9 @@ spec:
                 "include_global_state": false
               },
               "retention": {
-                "expire_after": "90d",
-                "min_count": 24,
-                "max_count": 48
+                "expire_after": "60d",
+                "min_count": 16,
+                "max_count": 32
               }
             }'
       - name: create-ilm
