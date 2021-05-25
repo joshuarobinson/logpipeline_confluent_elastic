@@ -1,6 +1,6 @@
 # Log Analytics Pipeline: Pure + Confluent + Elastic
 
-A helm chart to install a log analytics cluster in kubernetes and start a simple load-generator based on [flog](https://github.com/mingrammer/flog).
+A helm chart to install a log analytics cluster in kubernetes and start a simple load-generator based on [flog](https://github.com/mingrammer/flog). Read more about the motivation for the helm chart in [this blog post](https://joshua-robinson.medium.com/log-analytics-pipelines-as-a-service-59635e2b7681).
 
 The log analytics pipeline leverages 1) Confluent Tiered Storage and 2) Elastic Searchable Snapshots, both built upon FlashBlade S3 object store.
  * [Flog](https://github.com/mingrammer/flog) is a fake log generator for apache weblog-like output
@@ -19,8 +19,7 @@ Further Reading:
 # Pre-requisites
 
 * Kubernetes cluster installed
-* [PSO installed](https://github.com/purestorage/helm-charts/tree/master/pure-csi) and configured correctly.
-* (Optional) FlashArray/PSO or PortWorx configured.
+* [PortWorx installed](https://docs.portworx.com/portworx-install-with-kubernetes/) and configured correctly.
 * [Elastic Cloud for Kubernetes](https://www.elastic.co/guide/en/cloud-on-k8s/current/k8s-installing-eck.html) installed.
 * Elastic license enabled or [trial license installed](https://www.elastic.co/guide/en/cloud-on-k8s/current/k8s-licensing.html#k8s-start-trial).
 
@@ -32,4 +31,4 @@ To obtain the TOKEN, login via CLI and either create or list the token:
 
 ```pureadmin [create|list] --api-token --expose```
 
-By default, all PersistentVolumes used the FlashBlade, but this can be optionally changed to "pure-block" for FlashArray volumes or a PortWorx storageclass.
+By default, all PersistentVolumes use the FlashBlade, but this can be optionally changed to any other storageclass.
