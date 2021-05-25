@@ -50,7 +50,7 @@ spec:
       node.store.allow_mmap: false
       node.roles: ["master", "data_hot", "ingest", "ml", "data_warm", "data_cold", "data_frozen", "data_content"]
       thread_pool.snapshot.max: 8
-      indices.recovery.max_bytes_per_sec: "1mb"
+      indices.recovery.max_bytes_per_sec: "1gb"
       xpack.searchable.snapshot.shared_cache.size: "1gb"
     volumeClaimTemplates:
     - metadata:
