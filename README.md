@@ -6,7 +6,7 @@ The log analytics pipeline leverages 1) Confluent Tiered Storage and 2) Elastic 
  * [Flog](https://github.com/mingrammer/flog) is a fake log generator for apache weblog-like output
  * Kafka configured to use [Confluent Tiered Storage](https://docs.confluent.io/platform/current/kafka/tiered-storage.html) on S3 to simplify operations at scale
  * Filebeats to pull data from Kafka to Elasticsearch
- * Elasticsearch with storage on FlashBlade NFS with an S3 snapshot repository for backups and cold tier storage
+ * Elasticsearch with hot tier storage on FlashBlade NFS and [Frozen Tier](https://www.elastic.co/blog/introducing-elasticsearch-frozen-tier-searchbox-on-s3) backed by an S3 snapshot repository
 
 As part of the setup process, this helm chart creates the necessary S3 accounts, users, keys, and buckets on the target FlashBlade using a separate program called s3manage. This program is a lightweight python wrapper to make using the REST API easier from a Kubernetes job.
 
