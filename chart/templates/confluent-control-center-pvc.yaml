@@ -5,7 +5,6 @@ metadata:
   labels:
     app: {{ .Release.Name }}-confluent-control-center
 spec:
-  storageClassName: pure-file
   accessModes:
   - ReadWriteOnce
   resources:
