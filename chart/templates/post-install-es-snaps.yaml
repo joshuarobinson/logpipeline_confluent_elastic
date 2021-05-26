@@ -110,8 +110,8 @@ spec:
                   "hot" : { 
                     "actions" : { 
                       "rollover" : { 
-                        "max_age" : "1h",
-                        "max_size" : "500gb" 
+                        "max_age" : "6h",
+                        "max_size" : "100gb" 
                         }, 
                       "forcemerge" : { 
                         "max_num_segments" : 1 
