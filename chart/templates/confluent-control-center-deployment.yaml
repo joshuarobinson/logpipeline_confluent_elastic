@@ -13,6 +13,8 @@ spec:
       labels:
         app: {{ .Release.Name }}-confluent-control-center
     spec:
+      securityContext:
+        fsGroup: 1000
       containers:
       - name: ccc
         image: confluentinc/cp-enterprise-control-center:{{ .Values.kafka.cpVersion }}
