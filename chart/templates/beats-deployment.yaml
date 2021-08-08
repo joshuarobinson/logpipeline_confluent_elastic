@@ -37,3 +37,15 @@ spec:
       - name: beats-config-vol
         configMap:
           name: {{ .Release.Name }}-kafka-beats-config
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 1
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - {{ .Release.Name }}-kafka-beats
+              topologyKey: kubernetes.io/hostname
