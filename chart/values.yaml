@@ -11,13 +11,13 @@ zookeeper:
   storageclass: "pure-block"
 
 kafka:
-  cpVersion: 6.1.1
+  cpVersion: 6.2.0
   storageclass: "pure-file"
   nodecount: 4
 
 elasticsearch:
   nodecount: 6
-  version: 7.12.1
+  version: 7.14.0
   storageclass: "pure-file"
 
 beats:
