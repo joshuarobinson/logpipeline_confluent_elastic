@@ -1,0 +1,42 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Release.Name }}-post-grafana
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  template:
+    spec:
+      initContainers:
+      - name: wait
+        image: centos:8
+        command: ["sh"]
+        args: ["-c", "sleep 60"]
+        imagePullPolicy: Always
+      - name: load-fb-dashboard
+        image: centos:8
+        command: 
+          - "sh"
+          - "-c"
+          - |
+            echo 'hello'
+            yum install jq -y
+            echo 'hello2'
+            curl -sS https://raw.githubusercontent.com/PureStorage-OpenConnect/pure-exporter/master/extra/grafana/pure-storage-flashblade-system-detail.json --output db.json
+            echo 'hello3'
+            cat db.json | jq 'del(.__inputs)' | jq '{ "dashboard": . }' | jq '.+ {"overwrite": true}' > db2.json;
+            echo 'hello4'
+            curl -X POST -H "Content-Type: application/json" -d @db2.json http://admin:admin@{{ .Release.Name }}-monitoring:3000/api/dashboards/import
+            echo 'hello5'
+        imagePullPolicy: Always
+      containers:
+      - name: terminal
+        image: centos:8
+        command:
+          - "sh"
+          - "-c"
+          - >
+            curl http://admin:admin@{{ .Release.Name }}-monitoring:3000/api/org/
+      restartPolicy: Never
+  backoffLimit: 2

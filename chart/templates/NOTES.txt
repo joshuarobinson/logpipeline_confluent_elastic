@@ -1,2 +1,5 @@
 1. Get the Elastic user password by running this command:
   echo $(kubectl get secret {{ .Release.Name }}-es-elastic-user -o go-template='{{ "{{" }}.data.elastic | base64decode{{ "}}" }}')
+
+2. Access the Grafana dashboard by port-forwarding with admin/admin credentials:
+  kubectl port-forward --address 0.0.0.0 service/{{ .Release.Name }}-monitoring 3000

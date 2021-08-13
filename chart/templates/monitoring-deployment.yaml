@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-monitoring
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-monitoring
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-monitoring
+    spec:
+      containers:
+      - name: exporter
+        image: genegatpure/pure-exporter
+        ports:
+        - containerPort: 9491
+          name: mtx-port
+        imagePullPolicy: Always
+      - name: prometheus
+        image: prom/prometheus
+        args: ["--config.file=/etc/prometheus/prometheus.yml"]
+        ports:
+        - containerPort: 9090
+          name: prom-port
+        volumeMounts:
+        - name: pw-config-vol
+          mountPath: /etc/prometheus/prometheus.yml
+          subPath: prometheus.yml
+        - name: prom-data
+          mountPath: /prometheus
+        imagePullPolicy: Always
+      - name: grafana
+        image: grafana/grafana
+        ports:
+        - containerPort: 3000
+          name: graf-port
+        volumeMounts:
+        - name: pw-config-vol
+          mountPath: /etc/grafana/provisioning/datasources/datasource.yml
+          subPath: datasource.yml
+        - name: graf-data
+          mountPath: /var/lib/grafana
+      restartPolicy: Always
+      volumes:
+      - name: pw-config-vol
+        configMap:
+          name: {{ .Release.Name }}-prometheus-config
+      - name: prom-data
+        persistentVolumeClaim:
+          claimName: {{ .Release.Name }}-prometheus-claim
+      - name: graf-data
+        persistentVolumeClaim:
+          claimName: {{ .Release.Name }}-grafana-claim
+
