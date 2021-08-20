@@ -5,9 +5,13 @@ metadata:
 data:
   prometheus.yml: |-
     global:
-      scrape_interval: 30s
+      scrape_interval: 60s
 
     scrape_configs:
+    - job_name: 'elastic-monitor'
+      scrape_timeout: 30s
+      static_configs:
+      - targets: ['{{ .Release.Name }}-elastic-monitoring-svc:9114']
     - job_name: 'pure_flashblade'
       scrape_timeout: 30s
       metrics_path: /metrics/flashblade

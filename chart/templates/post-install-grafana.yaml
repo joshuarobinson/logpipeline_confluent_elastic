@@ -20,16 +20,21 @@ spec:
           - "sh"
           - "-c"
           - |
-            echo 'hello'
             yum install jq -y
-            echo 'hello2'
             curl -sS https://raw.githubusercontent.com/PureStorage-OpenConnect/pure-exporter/master/extra/grafana/pure-storage-flashblade-system-detail.json --output db.json
-            echo 'hello3'
             cat db.json | jq 'del(.__inputs)' | jq '{ "dashboard": . }' | jq '.+ {"overwrite": true}' > db2.json;
-            echo 'hello4'
             curl -X POST -H "Content-Type: application/json" -d @db2.json http://admin:admin@{{ .Release.Name }}-monitoring:3000/api/dashboards/import
-            echo 'hello5'
         imagePullPolicy: Always
+      - name: load-es-dashboard
+        image: centos:8
+        command: 
+          - "sh"
+          - "-c"
+          - |
+            yum install jq -y
+            curl -sS https://raw.githubusercontent.com/prometheus-community/elasticsearch_exporter/master/examples/grafana/dashboard.json --output db.json
+            cat db.json | jq '{ "dashboard": . }' | jq '.+ {"overwrite": true}' > db2.json;
+            curl -X POST -H "Content-Type: application/json" -d @db2.json http://admin:admin@{{ .Release.Name }}-monitoring:3000/api/dashboards/import
       containers:
       - name: terminal
         image: centos:8
