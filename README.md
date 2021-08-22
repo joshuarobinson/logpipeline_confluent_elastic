@@ -7,6 +7,7 @@ The log analytics pipeline leverages 1) Confluent Tiered Storage and 2) Elastic 
  * Kafka configured to use [Confluent Tiered Storage](https://docs.confluent.io/platform/current/kafka/tiered-storage.html) on S3 to simplify operations at scale
  * Filebeats to pull data from Kafka to Elasticsearch
  * Elasticsearch with hot tier storage on FlashBlade NFS and [Frozen Tier](https://www.elastic.co/blog/introducing-elasticsearch-frozen-tier-searchbox-on-s3) backed by an S3 snapshot repository
+ * Prometheus and Grafana dashboards to monitor the FlashBlade and Elasticsearch.
 
 As part of the setup process, this helm chart creates the necessary S3 accounts, users, keys, and buckets on the target FlashBlade using a separate program called s3manage. This program is a lightweight python wrapper to make using the REST API easier from a Kubernetes job.
 
@@ -31,4 +32,4 @@ To obtain the TOKEN, login via CLI and either create or list the token:
 
 ```pureadmin [create|list] --api-token --expose```
 
-By default, all PersistentVolumes use the FlashBlade, but this can be optionally changed to any other storageclass.
+By default, all PersistentVolumes use the FlashBlade (or the default storageclass), but this can be optionally changed to any other storageclass.
