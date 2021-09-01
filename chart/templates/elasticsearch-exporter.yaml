@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-elastic-monitoring
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-elastic-monitoring
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-elastic-monitoring
+    spec:
+      containers:
+      - name: exporter
+        image: quay.io/prometheuscommunity/elasticsearch-exporter:latest
+        env:
+        - name: ES_USERNAME
+          value: "elastic"
+        - name: ES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-es-elastic-user
+              key: elastic
+        command: ["elasticsearch_exporter",
+                  "--es.uri=https://$(ES_USERNAME):$(ES_PASSWORD)@{{ .Release.Name }}-es-http:9200",
+                  "--es.ssl-skip-verify",
+                  "--es.all"]
+        ports:
+        - containerPort: 9114
+          name: mtx-port
+        imagePullPolicy: Always
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-elastic-monitoring-svc
+spec:
+  ports:
+  - name: mtx-port
+    port: 9114
+  selector:
+    app: {{ .Release.Name }}-elastic-monitoring
