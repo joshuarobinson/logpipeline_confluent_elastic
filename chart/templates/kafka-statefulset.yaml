@@ -26,12 +26,12 @@ spec:
         - name: AWS_ACCESS_KEY_ID
           valueFrom:
             secretKeyRef:
-              name: {{ .Release.Name }}-s3-keys
+              name: {{ .Release.Name }}-confluent-s3-keys
               key: access-key
         - name: AWS_SECRET_ACCESS_KEY
           valueFrom:
             secretKeyRef:
-              name: {{ .Release.Name }}-s3-keys
+              name: {{ .Release.Name }}-confluent-s3-keys
               key: secret-key
         ports:
         - containerPort: 9092

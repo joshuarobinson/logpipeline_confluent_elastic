@@ -10,45 +10,27 @@ spec:
     spec:
       serviceAccountName: s3manage
       initContainers:
-      - name: plumb-kafka-bucket
+      - name: delete-buckets
         image: joshuarobinson/s3manage
-        args: ["delete", "bucket", "{{ .Release.Name }}-kafka-tiered-storage"] 
+        args: ["delete", "bucket", "{{ .Release.Name }}-kafka-tiered-storage", "{{ .Release.Name }}-es-snaprepo", "{{ .Release.Name }}-es-ssnaps", "{{ .Release.Name }}-warehouse"] 
         env:
           - name: PUREFB_URL
             value: {{ .Values.flashblade.mgmtvip }}
           - name: PUREFB_API
             value: {{ .Values.flashblade.token }}
         imagePullPolicy: Always
-      - name: plumb-elastic-bucket
+      - name: delete-keys
         image: joshuarobinson/s3manage
-        args: ["delete", "bucket", "{{ .Release.Name }}-es-snaprepo"] 
+        args: ["delete", "user-keys", "--account", "{{ .Release.Name }}", "--k8s-secret", "{{ .Release.Name }}-confluent", "{{ .Release.Name }}-elastic", "{{ .Release.Name }}-warehouse"] 
         env:
           - name: PUREFB_URL
             value: {{ .Values.flashblade.mgmtvip }}
           - name: PUREFB_API
             value: {{ .Values.flashblade.token }}
         imagePullPolicy: Always
-      - name: plumb-elastic-ssnap-bucket
+      - name: delete-users
         image: joshuarobinson/s3manage
-        args: ["delete", "bucket", "{{ .Release.Name }}-es-ssnaps"] 
-        env:
-          - name: PUREFB_URL
-            value: {{ .Values.flashblade.mgmtvip }}
-          - name: PUREFB_API
-            value: {{ .Values.flashblade.token }}
-        imagePullPolicy: Always
-      - name: plumb-keys
-        image: joshuarobinson/s3manage
-        args: ["delete", "user-keys", "--account", "{{ .Release.Name }}", "--k8s-secret", "{{ .Release.Name }}"] 
-        env:
-          - name: PUREFB_URL
-            value: {{ .Values.flashblade.mgmtvip }}
-          - name: PUREFB_API
-            value: {{ .Values.flashblade.token }}
-        imagePullPolicy: Always
-      - name: plumb-user
-        image: joshuarobinson/s3manage
-        args: ["delete", "user", "--account", "{{ .Release.Name }}", "{{ .Release.Name }}"] 
+        args: ["delete", "user", "--account", "{{ .Release.Name }}", "{{ .Release.Name }}-confluent", "{{ .Release.Name }}-elastic", "{{ .Release.Name }}-warehouse"] 
         env:
           - name: PUREFB_URL
             value: {{ .Values.flashblade.mgmtvip }}
@@ -56,7 +38,7 @@ spec:
             value: {{ .Values.flashblade.token }}
         imagePullPolicy: Always
       containers:
-      - name: plumb-account
+      - name: delete-account
         image: joshuarobinson/s3manage
         args: ["delete", "account", "{{ .Release.Name }}"] 
         env:

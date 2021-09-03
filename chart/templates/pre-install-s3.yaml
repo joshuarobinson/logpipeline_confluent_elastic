@@ -10,7 +10,7 @@ spec:
     spec:
       serviceAccountName: s3manage
       initContainers:
-      - name: plumb-account
+      - name: create-account
         image: joshuarobinson/s3manage
         args: ["create", "account", "{{ .Release.Name }}"] 
         env:
@@ -19,9 +19,9 @@ spec:
           - name: PUREFB_API
             value: {{ .Values.flashblade.token }}
         imagePullPolicy: Always
-      - name: plumb-user
+      - name: create-users
         image: joshuarobinson/s3manage
-        args: ["create", "user", "--account", "{{ .Release.Name }}", "{{ .Release.Name }}"] 
+        args: ["create", "user", "--account", "{{ .Release.Name }}", "{{ .Release.Name }}-elastic", "{{ .Release.Name }}-confluent", "{{ .Release.Name }}-warehouse"] 
         env:
           - name: PUREFB_URL
             value: {{ .Values.flashblade.mgmtvip }}
@@ -29,36 +29,18 @@ spec:
             value: {{ .Values.flashblade.token }}
         imagePullPolicy: Always
       containers:
-      - name: plumb-keys
+      - name: create-keys
         image: joshuarobinson/s3manage
-        args: ["create", "user-key", "--account", "{{ .Release.Name }}", "--k8s-secret", "{{ .Release.Name }}"] 
+        args: ["create", "user-key", "--account", "{{ .Release.Name }}", "--k8s-secret", "{{ .Release.Name }}-elastic", "{{ .Release.Name }}-confluent", "{{ .Release.Name }}-warehouse"] 
         env:
           - name: PUREFB_URL
             value: {{ .Values.flashblade.mgmtvip }}
           - name: PUREFB_API
             value: {{ .Values.flashblade.token }}
         imagePullPolicy: Always
-      - name: plumb-kafka-bucket
+      - name: create-buckets
         image: joshuarobinson/s3manage
-        args: ["create", "bucket", "--account", "{{ .Release.Name }}", "{{ .Release.Name }}-kafka-tiered-storage"] 
-        env:
-          - name: PUREFB_URL
-            value: {{ .Values.flashblade.mgmtvip }}
-          - name: PUREFB_API
-            value: {{ .Values.flashblade.token }}
-        imagePullPolicy: Always
-      - name: plumb-elastic-bucket
-        image: joshuarobinson/s3manage
-        args: ["create", "bucket", "--account", "{{ .Release.Name }}", "{{ .Release.Name }}-es-snaprepo"] 
-        env:
-          - name: PUREFB_URL
-            value: {{ .Values.flashblade.mgmtvip }}
-          - name: PUREFB_API
-            value: {{ .Values.flashblade.token }}
-        imagePullPolicy: Always
-      - name: plumb-elastic-ssnaps-bucket
-        image: joshuarobinson/s3manage
-        args: ["create", "bucket", "--account", "{{ .Release.Name }}", "{{ .Release.Name }}-es-ssnaps"] 
+        args: ["create", "bucket", "--account", "{{ .Release.Name }}", "{{ .Release.Name }}-kafka-tiered-storage", "{{ .Release.Name }}-es-snaprepo", "{{ .Release.Name }}-es-ssnaps", "{{ .Release.Name }}-warehouse"] 
         env:
           - name: PUREFB_URL
             value: {{ .Values.flashblade.mgmtvip }}
