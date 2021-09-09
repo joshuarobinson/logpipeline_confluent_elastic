@@ -1,0 +1,39 @@
+apiVersion: platform.confluent.io/v1beta1
+kind: Kafka
+metadata:
+  name: {{ .Release.Name }}-kafka
+spec:
+  replicas: {{ .Values.kafka.nodecount }}
+  image:
+    application: confluentinc/cp-server-connect:{{ .Values.kafka.cpVersion }}
+    init: confluentinc/confluent-init-container:2.0.2
+  dataVolumeCapacity: 500Gi
+  storageClass:
+    name: {{ .Values.kafka.storageclass }}
+  metricReporter:
+    enabled: true
+  configOverrides:
+    server:
+      - auto.create.topics.enable=true
+      - num.partitions=12
+      - default.replication.factor=2
+      - log.segment.bytes=104857600
+      - confluent.tier.enable=true
+      - confluent.tier.feature=true
+      - confluent.tier.backend=S3
+      - confluent.tier.s3.aws.endpoint.override=http://{{ .Values.flashblade.datavip }}
+      - confluent.tier.s3.bucket={{ .Release.Name }}-kafka-tiered-storage
+      - confluent.tier.s3.region=us-west-2
+      - confluent.tier.local.hotset.ms=0
+  podTemplate:
+    envVars:
+    - name: AWS_ACCESS_KEY_ID
+      valueFrom:
+        secretKeyRef:
+          name: {{ .Release.Name }}-confluent-s3-keys
+          key: access-key
+    - name: AWS_SECRET_ACCESS_KEY
+      valueFrom:
+        secretKeyRef:
+          name: {{ .Release.Name }}-confluent-s3-keys
+          key: secret-key

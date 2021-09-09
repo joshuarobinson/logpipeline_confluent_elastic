@@ -1,0 +1,13 @@
+apiVersion: platform.confluent.io/v1beta1
+kind: Zookeeper
+metadata:
+  name: {{ .Release.Name }}-zookeeper
+spec:
+  replicas: 3
+  image:
+    application: confluentinc/cp-zookeeper:{{ .Values.kafka.cpVersion }}
+    init: confluentinc/confluent-init-container:2.0.2
+  logVolumeCapacity: 10Gi
+  dataVolumeCapacity: 10Gi
+  storageClass:
+    name: pure-block

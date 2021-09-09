@@ -1,0 +1,15 @@
+apiVersion: platform.confluent.io/v1beta1
+kind: ControlCenter
+metadata:
+  name: {{ .Release.Name }}-controlcenter
+spec:
+  replicas: 1
+  image:
+    application: confluentinc/cp-server-connect:{{ .Values.kafka.cpVersion }}
+    init: confluentinc/confluent-init-container:2.0.2
+  dataVolumeCapacity: 100Gi
+  externalAccess:
+    type: nodePort
+    nodePort:
+      nodePortOffset: 30921
+      host: "irp210-h01"

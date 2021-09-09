@@ -4,7 +4,7 @@ A helm chart to install a log analytics cluster in kubernetes and start a simple
 
 The log analytics pipeline leverages 1) Confluent Tiered Storage and 2) Elastic Searchable Snapshots, both built upon FlashBlade S3 object store.
  * [Flog](https://github.com/mingrammer/flog) is a fake log generator for apache weblog-like output
- * Kafka configured to use [Confluent Tiered Storage](https://docs.confluent.io/platform/current/kafka/tiered-storage.html) on S3 to simplify operations at scale
+ * Confluent operator for Kubernetes configured to use [Confluent Tiered Storage](https://docs.confluent.io/platform/current/kafka/tiered-storage.html) on S3 to simplify operations at scale
  * Filebeats to pull data from Kafka to Elasticsearch
  * Elasticsearch with hot tier storage on FlashBlade NFS and [Frozen Tier](https://www.elastic.co/blog/introducing-elasticsearch-frozen-tier-searchbox-on-s3) backed by an S3 snapshot repository
  * Prometheus and Grafana dashboards to monitor the FlashBlade and Elasticsearch.
@@ -21,6 +21,7 @@ Further Reading:
 
 * Kubernetes cluster installed
 * [PortWorx installed](https://docs.portworx.com/portworx-install-with-kubernetes/) and configured correctly.
+* [Confluent for Kubernetes](https://docs.confluent.io/operator/current/co-deploy-cfk.html) installed.
 * [Elastic Cloud for Kubernetes](https://www.elastic.co/guide/en/cloud-on-k8s/current/k8s-installing-eck.html) installed.
 * Elastic license enabled or [trial license installed](https://www.elastic.co/guide/en/cloud-on-k8s/current/k8s-licensing.html#k8s-start-trial).
 

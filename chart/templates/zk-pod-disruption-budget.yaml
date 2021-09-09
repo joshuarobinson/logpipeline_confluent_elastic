@@ -1,9 +1,0 @@
-apiVersion: policy/v1
-kind: PodDisruptionBudget
-metadata:
-  name: {{ .Release.Name }}-kafka-zk-pdb
-spec:
-  selector:
-    matchLabels:
-      app: {{ .Release.Name }}-kafka-zk
-  maxUnavailable: 1
