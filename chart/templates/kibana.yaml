@@ -7,6 +7,8 @@ spec:
   count: 1
   elasticsearchRef:
     name: {{ .Release.Name }}
+  config:
+    xpack.monitoring.ui.container.elasticsearch.enabled: true
   http:
     service:
       spec:
