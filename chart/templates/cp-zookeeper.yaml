@@ -6,7 +6,7 @@ spec:
   replicas: 3
   image:
     application: confluentinc/cp-zookeeper:{{ .Values.kafka.cpVersion }}
-    init: confluentinc/confluent-init-container:2.0.2
+    init: confluentinc/confluent-init-container:2.0.3
   logVolumeCapacity: 10Gi
   dataVolumeCapacity: 10Gi
   storageClass:

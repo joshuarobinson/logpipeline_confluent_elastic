@@ -6,7 +6,7 @@ spec:
   replicas: {{ .Values.kafka.nodecount }}
   image:
     application: confluentinc/cp-server-connect:{{ .Values.kafka.cpVersion }}
-    init: confluentinc/confluent-init-container:2.0.2
+    init: confluentinc/confluent-init-container:2.0.3
   dataVolumeCapacity: 500Gi
   storageClass:
     name: {{ .Values.kafka.storageclass }}
