@@ -4,7 +4,7 @@ metadata:
   name: s3manage
   annotations:
     "helm.sh/hook": pre-install
-    "helm.sh/hook-weight": "5"
+    "helm.sh/hook-weight": "-5"
 subjects:
 - kind: ServiceAccount
   name: s3manage

@@ -4,7 +4,7 @@ metadata:
   name: s3manage-secret
   annotations:
     "helm.sh/hook": pre-install
-    "helm.sh/hook-weight": "10"
+    "helm.sh/hook-weight": "-10"
 rules:
 - apiGroups: [""]
   resources: ["secrets"]
