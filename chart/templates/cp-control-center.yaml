@@ -6,7 +6,7 @@ spec:
   replicas: 1
   image:
     application: confluentinc/cp-server-connect:{{ .Values.kafka.cpVersion }}
-    init: confluentinc/confluent-init-container:2.0.3
+    init: confluentinc/confluent-init-container:2.2.0
   dataVolumeCapacity: 100Gi
   externalAccess:
     type: nodePort
