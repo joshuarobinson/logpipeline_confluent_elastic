@@ -10,4 +10,4 @@ spec:
   logVolumeCapacity: 10Gi
   dataVolumeCapacity: 10Gi
   storageClass:
-    name: pure-block
+    name: {{ .Values.zookeeper.storageclass }}
