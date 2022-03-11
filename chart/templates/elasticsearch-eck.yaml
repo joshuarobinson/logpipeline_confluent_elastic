@@ -52,7 +52,6 @@ spec:
       thread_pool.snapshot.max: 8
       thread_pool.force_merge.size: 8
       indices.recovery.max_bytes_per_sec: "1gb"
-      xpack.searchable.snapshot.shared_cache.size: "1gb"
       xpack.monitoring.elasticsearch.collection.enabled: false
       xpack.monitoring.collection.enabled: true
     volumeClaimTemplates:
