@@ -66,6 +66,7 @@ spec:
                     xpack.enabled: true
     processors:
     - add_cloud_metadata: {}
+    - add_host_metadata: {}
     logging.json: true
   deployment:
     podTemplate:
@@ -78,6 +79,10 @@ spec:
         containers:
         - name: metricbeat
           env:
+          - name: NODE_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: spec.nodeName
           - name: MONITORED_ES_USERNAME
             value: elastic
           - name: MONITORED_ES_PASSWORD
@@ -95,11 +100,40 @@ rules:
   resources:
   - namespaces
   - pods
+  - events
   - nodes
   verbs:
   - get
   - watch
   - list
+- apiGroups:
+  - "extensions"
+  resources:
+  - replicasets
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - apps
+  resources:
+  - statefulsets
+  - deployments
+  - replicasets
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - nodes/stats
+  verbs:
+  - get
+- nonResourceURLs:
+  - /metrics
+  verbs:
+  - get
 ---
 apiVersion: v1
 kind: ServiceAccount
@@ -161,6 +195,11 @@ spec:
           #privileged: true
         containers:
         - name: filebeat
+          env:
+          - name: NODE_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: spec.nodeName
           volumeMounts:
           - name: varlogcontainers
             mountPath: /var/log/containers
@@ -188,6 +227,7 @@ rules:
   resources:
   - namespaces
   - pods
+  - events
   - nodes
   verbs:
   - get
